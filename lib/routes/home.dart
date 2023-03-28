@@ -2,6 +2,7 @@ import 'package:breez_sdk/breez_bridge.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sdkwallet/routes/payments.dart';
 import 'package:sdkwallet/routes/send.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,7 +23,32 @@ class HomePageState extends State<HomePage> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: const [],
+        children: [
+          StreamBuilder(
+              stream: context.read<BreezBridge>().nodeStateStream,
+              builder: (ctx, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+                final channelsBalanceSats = snapshot.data!.channelsBalanceMsat / 1000;
+                return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text('${channelsBalanceSats.toStringAsFixed(0)} sats',
+                      style: Theme.of(context).textTheme.displaySmall),
+                ));
+              }),
+          Expanded(
+            child: StreamBuilder(
+                stream: context.read<BreezBridge>().paymentsStream,
+                builder: (ctx, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox();
+                  }
+                  return PaymentsList(payments: snapshot.data!);
+                }),
+          )
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue,
