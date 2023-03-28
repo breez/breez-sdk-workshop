@@ -3,6 +3,7 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdkwallet/routes/home.dart';
+import 'package:sdkwallet/sdk_bridge.dart';
 
 void main() {
   Fimber.plantTree(DebugTree());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Provider(
-      create: (context) => BreezBridge(),
+      create: (context) => BreezBridge()..start(),
       lazy: false,
       child: const MaterialApp(
         home: HomePage(),
