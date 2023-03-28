@@ -1,4 +1,9 @@
+import 'package:breez_sdk/breez_bridge.dart';
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sdkwallet/routes/payments.dart';
+import 'package:sdkwallet/routes/send.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +23,32 @@ class HomePageState extends State<HomePage> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: const [],
+        children: [
+          StreamBuilder(
+              stream: context.read<BreezBridge>().nodeStateStream,
+              builder: (ctx, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+                final channelsBalanceSats = snapshot.data!.channelsBalanceMsat / 1000;
+                return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text('${channelsBalanceSats.toStringAsFixed(0)} sats',
+                      style: Theme.of(context).textTheme.displaySmall),
+                ));
+              }),
+          Expanded(
+            child: StreamBuilder(
+                stream: context.read<BreezBridge>().paymentsStream,
+                builder: (ctx, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox();
+                  }
+                  return PaymentsList(payments: snapshot.data!);
+                }),
+          )
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue,
@@ -29,7 +59,9 @@ class HomePageState extends State<HomePage> {
             Expanded(
               child: TextButton(
                 //'Receive'
-                onPressed: () async {},
+                onPressed: () async {
+                  Navigator.of(context).pushNamed("/receive");
+                },
                 child: const Text('Receive', style: TextStyle(color: Colors.white)),
               ),
             ),
@@ -43,7 +75,23 @@ class HomePageState extends State<HomePage> {
             Expanded(
               child: TextButton(
                 //'Receive'
-                onPressed: () async {},
+                onPressed: () async {
+                  final sdkBridge = context.read<BreezBridge>();
+                  final scannedData = await Navigator.of(context).pushNamed('/scan');
+                  if (scannedData != null && scannedData is String) {
+                    final parsedInput = await sdkBridge.parseInput(input: scannedData);
+                    if (mounted) {
+                      if (parsedInput is InputType_Bolt11) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return SendPaymentDialog(invoice: parsedInput.invoice);
+                            });
+                      }
+                    }
+                  }
+                },
+
                 child: const Text('Scan', style: TextStyle(color: Colors.white)),
               ),
             ),
