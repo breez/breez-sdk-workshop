@@ -29,7 +29,9 @@ class HomePageState extends State<HomePage> {
             Expanded(
               child: TextButton(
                 //'Receive'
-                onPressed: () async {},
+                onPressed: () async {
+                  Navigator.of(context).pushNamed("/receive");
+                },
                 child: const Text('Receive', style: TextStyle(color: Colors.white)),
               ),
             ),

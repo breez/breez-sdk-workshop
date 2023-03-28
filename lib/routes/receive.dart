@@ -1,5 +1,7 @@
+import 'package:breez_sdk/breez_bridge.dart';
 import 'package:breez_sdk/sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ReceivePage extends StatefulWidget {
@@ -20,7 +22,13 @@ class ReceivePageState extends State<ReceivePage> {
 
   @override
   void initState() {
-    super.initState();    
+    super.initState();
+    final BreezBridge sdkBridge = context.read();
+    sdkBridge.invoicePaidStream.listen((invoicePaidDetails) {
+      if (invoicePaidDetails.paymentHash == _invoice?.paymentHash) {
+        Navigator.of(context).pop();
+      }
+    });
   }
 
   @override
@@ -124,7 +132,12 @@ class ReceivePaymentDialog extends StatefulWidget {
 class ReceivePaymentDialogState extends State<ReceivePaymentDialog> {
   @override
   void initState() {
-    super.initState();    
+    super.initState();
+    final BreezBridge sdkBridge = context.read();
+    sdkBridge
+        .receivePayment(amountSats: widget.amountSat, description: widget.description)
+        .then((lnInvoice) => Navigator.of(context).pop(lnInvoice))
+        .onError((error, stackTrace) => Navigator.of(context).pop(null));
   }
 
   @override

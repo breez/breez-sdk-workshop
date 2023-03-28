@@ -3,6 +3,7 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdkwallet/routes/home.dart';
+import 'package:sdkwallet/routes/receive.dart';
 import 'package:sdkwallet/sdk_bridge.dart';
 
 void main() {
@@ -19,8 +20,11 @@ class MyApp extends StatelessWidget {
     return Provider(
       create: (context) => BreezBridge()..start(),
       lazy: false,
-      child: const MaterialApp(
-        home: HomePage(),
+      child: MaterialApp(
+        home: const HomePage(),
+        routes: {
+          '/receive': (ctx) => const ReceivePage(),
+        },
       ),
     );
   }
