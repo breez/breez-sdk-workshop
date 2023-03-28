@@ -1,5 +1,7 @@
+import 'package:breez_sdk/breez_bridge.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SendPaymentDialog extends StatefulWidget {
   const SendPaymentDialog({super.key, required this.invoice});
@@ -14,6 +16,14 @@ class SendPaymentDialog extends StatefulWidget {
 class SendPaymentDialogState extends State<SendPaymentDialog> {
   bool payInProgress = false;
 
+  pay() {
+    final BreezBridge sdkBridge = context.read();
+    setState(() {
+      payInProgress = true;
+    });
+    sdkBridge.sendPayment(bolt11: widget.invoice.bolt11).then((value) => Navigator.of(context).pop());
+  }
+
   @override
   Widget build(BuildContext context) {
     return !payInProgress ? buildOkCancel() : buildInProgressPayment();
@@ -25,8 +35,8 @@ class SendPaymentDialogState extends State<SendPaymentDialog> {
       content: Text("Are you sure you want to send ${widget.invoice.amountMsat! / 1000} Sats?"),
       actions: [
         TextButton(
+          onPressed: pay,
           child: const Text("OK"),
-          onPressed: () {},
         ),
         TextButton(
           child: const Text("CANCEL"),
