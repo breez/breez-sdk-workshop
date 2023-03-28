@@ -1,4 +1,8 @@
+import 'package:breez_sdk/breez_bridge.dart';
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sdkwallet/routes/send.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,7 +49,23 @@ class HomePageState extends State<HomePage> {
             Expanded(
               child: TextButton(
                 //'Receive'
-                onPressed: () async {},
+                onPressed: () async {
+                  final sdkBridge = context.read<BreezBridge>();
+                  final scannedData = await Navigator.of(context).pushNamed('/scan');
+                  if (scannedData != null && scannedData is String) {
+                    final parsedInput = await sdkBridge.parseInput(input: scannedData);
+                    if (mounted) {
+                      if (parsedInput is InputType_Bolt11) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return SendPaymentDialog(invoice: parsedInput.invoice);
+                            });
+                      }
+                    }
+                  }
+                },
+
                 child: const Text('Scan', style: TextStyle(color: Colors.white)),
               ),
             ),
