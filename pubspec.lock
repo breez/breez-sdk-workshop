@@ -92,9 +92,11 @@ packages:
   breez_sdk:
     dependency: "direct main"
     description:
-      path: "../breez-sdk/libs/sdk-flutter"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: f63804da30d4481e148c0e122e49af2982fe1794
+      url: "https://github.com/breez/sdk-workshop-flutter-plugin.git"
+    source: git
     version: "0.0.4"
   build:
     dependency: transitive
